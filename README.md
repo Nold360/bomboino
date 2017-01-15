@@ -1,2 +1,2 @@
-# bomboino
+# bombuino
 Simple Arduino Airsoft Bomb Dummy
