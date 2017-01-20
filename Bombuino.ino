@@ -1,19 +1,19 @@
 #include <LiquidCrystal.h>
 #include <EEPROM.h>
 
-//IO Pin definition
+//CHANGEME: IO Pin definition
 #define buttonPin 8     
 #define lockPin   10
-#define ledPin    13     
 #define piezoPin  9
 
-// State Definitions
+// Sound Definitions for Function playSound
 #define ARMED 0
 #define DISARMED 1
 
-// Time it takes to arm/disarm the bomb in ms
-int armDelay = 5000;
+//CHANGEME: Time it takes to arm/defuse the bomb in ms
+int armDelay = 5000; //(5 seconds)
 
+//CHANGEME:
 LiquidCrystal lcd(12, 11, 5, 4, 3, 2);
 
 // Don't change this values
@@ -29,26 +29,25 @@ int buttonPressed = 0;
 int memAddr = 0;
 
 void setup() {
+  //Read detonationDelay from EEPROM & set if valid
   int memVal = eepromReadInt(memAddr);
 
   if(memVal <= 60 && memVal >= 5) {
     detonationDelay = memVal;
   }
   
+  //Pinmodes
   pinMode(ledPin, OUTPUT); 
   pinMode (piezoPin, OUTPUT);
-
   pinMode(buttonPin, INPUT); 
   pinMode(lockPin, INPUT);   
 
-  // set up the LCD's number of columns and rows: 
+  // FIXME/CHANGEME: set up the LCD's number of columns and rows: 
   lcd.begin(40, 2);
 
   // Print a message to the LCD.  
-  lcdPrintln("S.O.F - Airsoft");
-  playSound(ARMED);
-  delay(1000);
   lcdPrintln("Bombuino Ver.1.0");
+  playSound(ARMED);
   delay(1000);
 }
 
@@ -57,7 +56,7 @@ void loop() {
   lockState = digitalRead(lockPin);
 
   if (!isArmed) { 
-    /******************************* Set-Time/Orga-Mode ****************************************/
+    /******************************* Set-Time/Game-Master-Mode ****************************************/
     if(lockState == LOW) {
       wroteMem = false;
       text = "Set Time: ";
@@ -65,9 +64,10 @@ void loop() {
       text += " min";
       lcdPrintln(text); 
       delay(200);
-    } 
-    else {
+    } else {
+      //If not in Game-Master-Mode & didn't save detonationDelay to EEPROM yet
       if(!wroteMem) {
+        //Save time to EEPROM
         eepromWriteInt(memAddr, detonationDelay);
         wroteMem = true;  
       } 
@@ -107,25 +107,24 @@ void loop() {
 
     /******************************* ARMED-Mode ****************************************/
   } 
-  else { //if bomb is armed
+  else { //if bomb is armed, print time left & beep
     //Count down if button isn't pressed
     if(buttonState == LOW) {
       timeLeft -= 1;
       text = "Time left: ";
       prefix = "";
 
-      /******************************* EXPLOSION ****************************************/
+      /******************************* 'DETONATION' ****************************************/
       if(timeLeft <= 0) {
         tone(piezoPin, 2500, 5000);
         lcdPrintln("!Terrorists Win!");
 
-        //Wait for Orga to unlock 
+        //Wait for game-master to unlock 
         while(digitalRead(lockPin) == HIGH); 
         isArmed = false;
-
-        /******************************* SHOW COUNTDOWN ****************************************/
-      } 
-      else {
+        
+      /******************************* SHOW COUNTDOWN ****************************************/
+      } else {
         minutes=0;
         seconds=0;
         minutes = timeLeft / 60;
@@ -148,8 +147,7 @@ void loop() {
           delay(200);
           tone(piezoPin, 2500, 150); 
           delay(800);
-        } 
-        else {
+        } else {
           delay(1000);
         }
       }
@@ -159,7 +157,7 @@ void loop() {
     else if(buttonState == HIGH) {
       buttonPressed = 0; 
       text = "+";
-      //DISARM if button is pressed for armDelay    
+      //DEFUSE if button is pressed for armDelay    
       while(digitalRead(buttonPin) == HIGH && isArmed) {
         lcdPrintln("DEFUSING: " + text);
         text += "+";
@@ -177,11 +175,16 @@ void loop() {
 }
 
 /*
-Function: lcdPrintln
+ Function: lcdPrintln
  Params: String string
  Return: void
  Desc: My LCD Sucks... It's 1x16.. but logically 2x40
  So this is my workaround
+ FIXME/CHANGEME: You might want to disable this function
+                 for your display.
+                 Then just replace content against:
+                 lcd.clear();
+                 lcd.println(string);
  */
 void lcdPrintln(String string) {
   string = string +"                ";
