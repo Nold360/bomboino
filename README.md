@@ -25,3 +25,6 @@ If it 'detonates', the bomb beeps for 5 seconds and waits for the game-master to
 
 ## Breadboard
 ![breadboard](bombuino_breadboard.jpg)
+
+## Example 
+![prototype](bombuino1.jpg)
