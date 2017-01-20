@@ -19,6 +19,7 @@ If it 'detonates', the bomb beeps for 5 seconds and waits for the game-master to
 * A Keyswitch
 * 220Ohm Resistor
 * ~10Ohm Resistor 
+* 10k Resistor (or whatever.. for pull-up on switch/button)
 * NPN-Transistor (BC337, BC547, 2N3904, ...)
 * Speaker
 
